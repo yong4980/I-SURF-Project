@@ -50,3 +50,44 @@ This thesis dose not address self-adaptive systems directly, but an infrastructu
 
 
 
+### chapter 3
+
+![MARS Framework](./img/MARS_framework.PNG)
+
+MARS is mainly composed of four parts
+
+1. Sensors and Actuators. - The sensed data that consists of performance counters and other sensory information collected to assess the current system state and to characterize workloads. 
+
+2. Resource management policies implemented by MARS's users.
+
+3. Reflective system model used by the policies to make informed decisions. The reflective model has the following subcomponents
+
+   (a) Models for policies implemented by the underlying OS kernel used for coordinating decisions taken within MARS with decisions taken by the OS.
+
+   (b) Models for user policies, that are automatically instantiated from any policy defined within MARS.
+
+   (c) The baseline performance/power model. This model takes as input the predicted actuations generated from the policy models and produces predicted sensed data.
+
+4. The high-level policy manager that is responsible for reconfiguring the system by adding, removing, or swapping policies to better achieve the current system goal.
+
+
+
+MARS interfaces
+
+![MARS Interfaces UML diagram](./img/MARS_interfaces_UML.PNG)
+
+In summary, the reflection flow works as follows
+
+1. Policy models predict which actuations are going to be performed in the future. If no models or other policies were registered, we just assume the latest values read from actuationVal/tryActuationVal won't be changed during the future sensing window.
+
+2. The actuations predicted by step (1) are fed to Perf_Power_Model. The metrics returned are then used to predict the requested information returned by senseif.
+
+
+
+MARS, the reflection mechanisms are tailored toward on-chip resource management to reduce the overheads. MARS's overheads come from mainly three sources
+
+1. The sensing interface
+2. The baseline performance/power model
+3. The complexity of the policies used
+
+what is High-level policy manager? - The motivation behind the high-level policy manager is to provide better resource management autonomy in response to changing system goals or execution scenarios. MARS was designed keeping in mind the presence of a high-level manager.
