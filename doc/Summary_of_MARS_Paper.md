@@ -25,8 +25,28 @@ Let's know a vision of a holistic approach for performing resource allocation de
 
 In this system, performing resource management actuation considering both sensing information to assess the current system state, as well as models to predict the outcome of the actuation before performing it.
 
-![MARS_Overview](./img/MARS_Overview.png)
+![MARS_Overview](./img/MARS_Overview.PNG)
 
 
 
-1. 
+### Chapter 2
+
+* what is reflection? - A reflective system usually maintain a representation of itself within the underlying system, which is used for reasoning.
+
+Notice : The reflection mechanisms used in these works impose a rather heavy workload that would cause significant performance deterioration in devices with limited resources and there is always a trade-off issue between performance and scope of adaptability.
+
+MIMO(Multiple-Output Multiple-Input) is a robust solution and provides a systematic way incorporate new resources into the design. However, MIMO is not scalable[82] and cannot handle discrete system logic. 
+
+* what is ODA? - all propose task mapping heuristics that use offline-trained models to predict the performance and/or power of a new task mapping based on current sensed data.
+* what is the difference between Reflection and ODA? - In ODA decisions are made based either on past observation or predictions made from past observations. These predictions do not consider future action or events that could happen until the next iteration of the ODA loop. 
+
+![Difference ODA_loops and MARS](./img/difference_ODA_MARS.PNG)
+
+
+
+Self-adaptive software can be defined as "software that evaluates its own behavior and changes behavior when the evaluation indicates that it is not accomplishing what the software is intended to do, or when better functionality or performance is possible".
+
+This thesis dose not address self-adaptive systems directly, but an infrastructure for system introspection and reflective behavior is an important building block for such systems, which highlights the potentials contributions of MARS in this context.
+
+
+
