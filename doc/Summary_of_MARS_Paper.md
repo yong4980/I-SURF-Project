@@ -91,3 +91,34 @@ MARS, the reflection mechanisms are tailored toward on-chip resource management 
 3. The complexity of the policies used
 
 what is High-level policy manager? - The motivation behind the high-level policy manager is to provide better resource management autonomy in response to changing system goals or execution scenarios. MARS was designed keeping in mind the presence of a high-level manager.
+
+
+
+### chapter 4
+
+we use the Linux-based implementation of the virtual interface. Each interface must provide the mechanisms necessary for the implementation of the sense and actuate functions, as well as the periodic triggering of the policy functions. 
+
+![Linux toolchain Overview](./img/Linux_toolchain.PNG)
+
+##### Evaluation Platforms
+
+ODROID-XU3
+
+- specification : Samsung Exynose5422 HMP(8-core big.LITTLE-based HMP), per-cluster power sensors, temperature sensors
+
+GEM5
+
+- defined - The gem5 simulator is a modular platform for computer-system architecture research, encompassing system-level architecture as well as processor microarchitecture.
+- This allowed us to evaluate MARS on HMP platforms with more than two core types.
+- This project only use FS(Full System Mode), in which a complete operating system boots on top of gem5 and system calls are executed natively.
+
+
+
+##### Interface overheads 
+
+![Interface Overheads](./img/Interface_overheads.PNG)
+
+There is larger increase in overhead when we compare the vanilla kernel vs MARS(100ms window), as opposed to MARS(100ms window) vs MARS(10ms window). This is due to the fact that MARS's  kernel module always samples performance counter swtiches regardless of the window length. MARS's overhead is very small(0.37%)
+
+
+
