@@ -12,3 +12,18 @@ reference(Korean) - https://subicura.com/2017/01/19/docker-guide-for-beginners-1
 
 
 
+### Compiling
+
+###### parameters
+
+- ARCH : ISA used for compiling. Affects the GCC being used. Default is `ARCH=x86`if undefined
+
+- PLAT : platform to use when compiling modules with platform-specific code. Set based on the value for ARCH if undefined. Ex: for odroid, `PLAT_DEFAULT_arm=exynos5422`
+- CROSS_COMPILE_usr : Which GCC to use for user space applications. Set based on the value for ARCH if undefined
+- CROSS_COMPILE_Krn : Which GCC to use for kernel modules. Set based on the value for ARCH if undefined.
+- EXTRAFLAGS : Extra GCC options. Set based on the value for ARCH if undefined
+- KERNEL_SRC : Path to kernel source used when compiling linux kernel modules. Set based on the value for ARCH if undifined.
+- MODULE : Linux module to compile when running 'make exp_module'. No default value.
+- UBENCH : Specify a specific target when running 'make ubench'
+- DAEMONS : Specify specific daemons to build when running 'make daemons'. If blank all daemons are built. Use, "," to separate multiple values
+- KERNEL_SRC_DEFAULT : Specify the kernel source code if cross compiling modules.
