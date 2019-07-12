@@ -1,3 +1,5 @@
+
+
 ### Docker
 
 Docker is a tool designed to make it easier to create, deploy, and run applications by using containers. 
@@ -27,3 +29,31 @@ reference(Korean) - https://subicura.com/2017/01/19/docker-guide-for-beginners-1
 - UBENCH : Specify a specific target when running 'make ubench'
 - DAEMONS : Specify specific daemons to build when running 'make daemons'. If blank all daemons are built. Use, "," to separate multiple values
 - KERNEL_SRC_DEFAULT : Specify the kernel source code if cross compiling modules.
+
+
+
+### Command `taskset`
+
+Description : `taskset` is used to set or  retrieve the CPU affinity of a running process given its pid, or to launch a new command with a given CPU.
+
+Synopsis : 
+
+```
+taskset [options] mask command [argument...]
+taskset [options] -p [mask] pid
+```
+
+The masks may be specified in hexadecimal (with or without a leading "0x"), or as a CPU list with the --cpu-list option.  
+
+![taskset_mask](./img/taskset_mask.jpg)
+
+
+
+In this cases, command `sh $MARS_SCRIPTDIR/ubenchmarks/high_ipc_high_load.sh > /dev/null &` processes on processor 4 and 6
+
+And `sh $MARS_SCRIPTDIR/ubenchmarks/high_ipc_high_load.sh > /dev/null &` process on processor 1 and 2
+
+![taskset_example](./img/taskset_example.png)
+
+
+
