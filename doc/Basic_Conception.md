@@ -47,13 +47,22 @@ The masks may be specified in hexadecimal (with or without a leading "0x"), or a
 
 ![taskset_mask](./img/taskset_mask.jpg)
 
-
+![taskset_example](./img/taskset_example.png)
 
 In this cases, command `sh $MARS_SCRIPTDIR/ubenchmarks/high_ipc_high_load.sh > /dev/null &` processes on processor 4 and 6
 
 And `sh $MARS_SCRIPTDIR/ubenchmarks/high_ipc_high_load.sh > /dev/null &` process on processor 1 and 2
 
-![taskset_example](./img/taskset_example.png)
 
 
+### echo
 
+echo command in linux is used to display line of text/string that are passed as an argument .
+
+![echo_example](./img/echo_example.png)
+
+In this cases, `echo userspace > /sys/.../scaling_governor` means to modifying this file and controlling it in usersapce (cpu0~cpu5). 
+
+`echo 1 > /sys/.../online` means on cpu(cpu1~cpu5)
+
+And the others are to determine the maximum and minimum cpu frequency.
