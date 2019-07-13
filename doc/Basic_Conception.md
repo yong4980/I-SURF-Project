@@ -66,3 +66,10 @@ In this cases, `echo userspace > /sys/.../scaling_governor` means to modifying t
 `echo 1 > /sys/.../online` means on cpu(cpu1~cpu5)
 
 And the others are to determine the maximum and minimum cpu frequency.
+
+
+
+### dmseg -wH
+
+dmesg is used to examine or control the kernel ring buffer. The default action is to display all messages from the kernel ring buffer.
+
