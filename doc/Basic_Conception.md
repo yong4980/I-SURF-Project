@@ -73,3 +73,16 @@ And the others are to determine the maximum and minimum cpu frequency.
 
 dmesg is used to examine or control the kernel ring buffer. The default action is to display all messages from the kernel ring buffer.
 
+
+
+### TCP/IP
+
+TCP is one of the main protocols of the Internet protocol suite. TCP provides reliable, ordered, and error-checked delivery of a stream of octets between applications running on hosts communicating via an IP network.
+
+![socket](./img/socket.png)
+
+This figure shows the form of a code that implements TCP.
+
+Server source - https://github.com/yong4980/I-SURF-Project/blob/master/src/test_tcp_server.cpp
+
+Client source - https://github.com/yong4980/I-SURF-Project/blob/master/src/test_tcp_client.cpp
