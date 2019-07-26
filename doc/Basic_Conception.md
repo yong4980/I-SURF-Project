@@ -86,3 +86,34 @@ This figure shows the form of a code that implements TCP.
 Server source - https://github.com/yong4980/I-SURF-Project/blob/master/src/test_tcp_server.cpp
 
 Client source - https://github.com/yong4980/I-SURF-Project/blob/master/src/test_tcp_client.cpp
+
+
+
+### Multi-processing VS Multi-threading
+
+![multiprocessing](./img/processing_vs_threading.jpg)
+
+##### Multi-processing
+
+###### Definition 
+
+- Multiprocessing sometimes refers to executing multiple processes(program) at the same time. It relates to the hardware (the CPU units) rather than the software (running processes). A system can be both multi-programmed by having multiple programs running at the same time and multiprocessing by having more than one physical processor.
+
+###### Advantage 
+
+- The multiprocessor system is to get more work done in a shorter period of time.
+
+##### Multi-threading
+
+###### Definition
+
+- Multi-threading is an execution model that allows a single process to have multiple code segments(i.e., threads) run concurrently within the "context" of that process. You can think of threads as child processes that share the parent process resources but execute independently.
+
+###### Advantage
+
+- Less overhead to establish and terminate vs a process, because very little memory copying is required.
+- Threads are faster to start than processes. And also faster for task-switching.
+
+
+
+In this project, I used multi-processing. Because boards did not share resources.
