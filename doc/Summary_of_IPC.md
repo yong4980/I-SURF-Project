@@ -72,6 +72,16 @@ This method is mostly used to communicate over a network between a client and a 
 
 
 
+#### In MARS
+
+![MARS_IPC](./img/MARS_IPC.png)
+
+(I've annotated the description)
+
+
+
+#### Word Reference
+
 ##### semaphore
 
 - A semaphore is a variable or abstract data type used to control access to a common resource by multiple processes in a concurrent system such as a multitasking operating system. A semaphore is simply a variable. This variable is used to solve critical section problems and to achieve process synchronization in the multi processing environment.
