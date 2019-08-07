@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
 
 	client->request = false;
 
-	printf("\nresult\nfreq:%d\nEnd MARS", client->freq);
+	printf("\nresult\nfreq:%d\nEnd MARS\n", client->freq);
 	
 	return 0;
 } 
