@@ -81,7 +81,7 @@ int main(int argc,char* argv[]){
             printf("%s",buf);
             if(strncmp(buf,"exit",4) == 0)
                 exit(0);
-            } //부모프로세스는 client가 소켓에 보낸 문자열을 read로 읽어 저장한다.
-        }     //역시 exit 가 날라왔을시에는 종료.
+        } //부모프로세스는 client가 소켓에 보낸 문자열을 read로 읽어 저장한다.
+    }     //역시 exit 가 날라왔을시에는 종료.
     return 0;
 }

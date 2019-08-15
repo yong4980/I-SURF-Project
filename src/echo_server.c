@@ -44,9 +44,13 @@ int main(){
   socklen_t addr_size;
 
   char buffer[1024];
-  pid_t childpid;
+  pid_t childpid, childpid2;
+
+  int socketNum = 0, nbytes, checkNum;
+  char checkStr[1024];
 
   bzero(buffer, sizeof(buffer));
+  bzero(checkStr, sizeof(checkStr));
 
   sockfd = socket(AF_INET, SOCK_STREAM, 0);
   if(sockfd < 0){
@@ -58,7 +62,7 @@ int main(){
   memset(&serverAddr, '\0', sizeof(serverAddr));
   serverAddr.sin_family = AF_INET;
   serverAddr.sin_port = htons(PORT);
-  serverAddr.sin_addr.s_addr = inet_addr("169.234.31.35");
+  serverAddr.sin_addr.s_addr = inet_addr("169.234.11.116");
 
   ret = bind(sockfd, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
   if(ret < 0){
@@ -80,26 +84,47 @@ int main(){
       exit(1);
     }
     printf("[+]Connection accepted from %s:%d\n", inet_ntoa(newAddr.sin_addr), ntohs(newAddr.sin_port));
+    socketNum += 1;
 
-    if(childpid = fork() == 0){
-      close(sockfd);
+    if((childpid=fork())== -1){close(sockfd);perror("fork() error");exit(0);}
+    else if (childpid == 0){ //자식프로세스이다.
+        while(1){
+            fflush(stdin);
+            printf("socket Num : ");
+            fgets(checkStr, sizeof(checkStr), stdin);
+            checkNum = atoi(checkStr);
+            if(checkNum == socketNum){
+              bzero(checkStr, sizeof(checkStr));
+              checkNum = 0;
 
-      while(1){
-        recv(newSocket, buffer, 1024, 0);
-        if(strcmp(buffer, ":exit") == 0){
-          printf("[-]Disconnected from %s:%d\n", inet_ntoa(newAddr.sin_addr), ntohs(newAddr.sin_port));
-          break;
+              printf("input : ");
+              fflush(stdin);
+              fgets(buffer,sizeof(buffer),stdin);
+              nbytes = strlen(buffer);
+              write(newSocket,buffer,511);
+              if((strncmp,"exit",4) == 0){
+                  puts("Good Bye.");
+                  exit(0);
+              }
+            }
         }
-        else{
-          printf("Client(%d): %s\n", ntohs(newAddr.sin_port), buffer);
-          //send(newSocket, buffer, strlen(buffer), 0);
-          test(buffer, newAddr, newSocket);
-          bzero(buffer, sizeof(buffer));
-        }
-      }
+        exit(0);
     }
-  }
 
+    if((childpid2=fork())== -1){close(sockfd);perror("fork() error");exit(0);}
+    else if(childpid2 == 0){ //또 다른 자식프로세스이다.
+        while(1){
+            if((nbytes = read(newSocket,buffer,511)) <0){
+                perror("read() error\n");
+                exit(0);
+            }
+            printf("%s",buffer);
+            if(strncmp(buffer,"exit",4) == 0)
+                exit(0);
+        } //부모프로세스는 client가 소켓에 보낸 문자열을 read로 읽어 저장한다.
+    }     //역시 exit 가 날라
+
+  }
   close(newSocket);
 
   return 0;
