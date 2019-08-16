@@ -6,8 +6,10 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <signal.h>
 
 #define PORT 4444
+#define MAXCLIENT 30
 
 void test(char* buffer, struct sockaddr_in newAddr, int newSocket){
   int i;
@@ -44,10 +46,14 @@ int main(){
   socklen_t addr_size;
 
   char buffer[1024];
-  pid_t childpid, childpid2;
+  pid_t recvpid, sendpid;
 
   int socketNum = 0, nbytes, checkNum;
   char checkStr[1024];
+  int client_socket[MAXCLIENT] = {0, };
+
+  //set of socket descriptors
+  fd_set readfds;
 
   bzero(buffer, sizeof(buffer));
   bzero(checkStr, sizeof(checkStr));
@@ -61,8 +67,8 @@ int main(){
 
   memset(&serverAddr, '\0', sizeof(serverAddr));
   serverAddr.sin_family = AF_INET;
-  serverAddr.sin_port = htons(PORT);
-  serverAddr.sin_addr.s_addr = inet_addr("169.234.11.116");
+  serverAddr.sin_port = htons( PORT );
+  serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 
   ret = bind(sockfd, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
   if(ret < 0){
@@ -85,45 +91,43 @@ int main(){
     }
     printf("[+]Connection accepted from %s:%d\n", inet_ntoa(newAddr.sin_addr), ntohs(newAddr.sin_port));
     socketNum += 1;
+    client_socket[socketNum] = newSocket;
 
-    if((childpid=fork())== -1){close(sockfd);perror("fork() error");exit(0);}
-    else if (childpid == 0){ //자식프로세스이다.
-        while(1){
-            fflush(stdin);
-            printf("socket Num : ");
-            fgets(checkStr, sizeof(checkStr), stdin);
-            checkNum = atoi(checkStr);
-            if(checkNum == socketNum){
-              bzero(checkStr, sizeof(checkStr));
-              checkNum = 0;
-
-              printf("input : ");
-              fflush(stdin);
-              fgets(buffer,sizeof(buffer),stdin);
-              nbytes = strlen(buffer);
-              write(newSocket,buffer,511);
-              if((strncmp,"exit",4) == 0){
-                  puts("Good Bye.");
-                  exit(0);
-              }
-            }
-        }
-        exit(0);
+    if(socketNum != 1){
+      kill(sendpid, SIGINT);
     }
 
-    if((childpid2=fork())== -1){close(sockfd);perror("fork() error");exit(0);}
-    else if(childpid2 == 0){ //또 다른 자식프로세스이다.
-        while(1){
-            if((nbytes = read(newSocket,buffer,511)) <0){
-                perror("read() error\n");
-                exit(0);
-            }
-            printf("%s",buffer);
-            if(strncmp(buffer,"exit",4) == 0)
-                exit(0);
-        } //부모프로세스는 client가 소켓에 보낸 문자열을 read로 읽어 저장한다.
-    }     //역시 exit 가 날라
+    if((sendpid=fork())== -1){close(sockfd);perror("fork() error");exit(0);}
+    else if(sendpid == 0){//send 자식프로세스이다.
+      while(1){
+          fflush(stdin);
+          fgets(checkStr, sizeof(checkStr), stdin);
+          checkNum = atoi(checkStr);
 
+          bzero(checkStr, sizeof(checkStr));
+
+          printf("send msg to %d socket : ", checkNum);
+          fflush(stdin);
+          fgets(buffer,sizeof(buffer),stdin);
+          nbytes = strlen(buffer);
+          write(client_socket[checkNum],buffer,511);
+      }
+    }
+    //newSocket을 지정할 방법을 찾아야 함!
+
+    if((recvpid=fork())== -1){close(sockfd);perror("fork() error");exit(0);}
+    else if (recvpid == 0){ //recv 자식프로세스이다.
+      while(1){
+          if((nbytes = read(newSocket,buffer,511)) <0){
+              perror("read() error\n");
+              exit(0);
+          }
+          printf("Socket Num(%d) : %s", socketNum, buffer);
+          if(strncmp(buffer,"exit",4) == 0)
+              exit(0);
+      }
+        exit(0);
+    }
   }
   close(newSocket);
 

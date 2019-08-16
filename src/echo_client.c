@@ -8,6 +8,7 @@
 #include <arpa/inet.h>
 
 #define PORT 4444
+#define HOSTIP "169.234.61.6"
 
 int main(){
   int clientSocket, ret;
@@ -28,7 +29,7 @@ int main(){
   memset(&serverAddr, '\0', sizeof(serverAddr));
   serverAddr.sin_family = AF_INET;
   serverAddr.sin_port = htons(PORT);
-  serverAddr.sin_addr.s_addr = inet_addr("169.234.11.116");
+  serverAddr.sin_addr.s_addr = inet_addr( HOSTIP);
 
   ret = connect(clientSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
   if(ret < 0){
@@ -60,7 +61,7 @@ int main(){
               perror("read() error\n");
               exit(0);
           }
-          printf("%s",buffer);
+          printf("Server : %s",buffer);
           if(strncmp(buffer,"exit",4) == 0)
               exit(0);
           }

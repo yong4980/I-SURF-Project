@@ -17,7 +17,7 @@
 using namespace std;
 
 #define PORT 4444
-#define HOSTIP "169.234.10.114"
+#define HOSTIP "169.234.61.6"
 #define SEM_REQUEST_SIGNAL_NAME "/sem-req"
 #define SEM_ACK_SIGNAL_NAME "/sem-ack"
 
@@ -44,12 +44,16 @@ void error (string msg)
 
 int main(int argc, char* argv[])
 {
-	//network 
+	//network
 	int clientSocket, ret;
 	struct sockaddr_in serverAddr;
 	char buffer[1024];
+	pid_t childpid;
+  int nbytes;
 
 	clientSocket = socket(AF_INET, SOCK_STREAM, 0);
+	bzero(buffer, sizeof(buffer));
+
 	if(clientSocket < 0){
 		printf("[-]Error in Connection.\n");
 		exit(1);
@@ -69,9 +73,9 @@ int main(int argc, char* argv[])
 	}
 	printf("[+]Connected to Server.\n");
 
-	//ipc 
+	//ipc
 	key_t key = ftok("shmfile", 65); // ftok to generate unique key
-	
+
 	int shmid = shmget(key, 1024, 0666|IPC_CREAT); // shmget returns an identifier in shmid
 
 	fuzzy_data *tmp = (fuzzy_data*) shmat(shmid, (void*)0, 0); // shmat to attach to shared memory
@@ -83,60 +87,105 @@ int main(int argc, char* argv[])
 
 	//int count = atoi(argv[1]);
 
-/*	//ipc
+	/*	//ipc sample
 	while(1) {
 		//wait for a request
 		while(tmp->request == false);
-		
+
 		//powerErr = tmp->powErr; //set test_mars
 		//int frequencyVal = fuzzyDVFS(powerErr); //do not use fuzzy
-		//tmp->freq = frequncyVal; //set specific value 
+		//tmp->freq = frequncyVal; //set specific value
 
-		//Send result to daemon 
+		//Send result to daemon
 		if (sem_post (ack_sem) == -1)
 			error ("sem_post : buffer_count_sen");
 	}
 	*/
 
 	//interact server
-	while(1){
-		bzero(buffer, sizeof(buffer));
-		printf("Client : \t");
-		scanf("%s", &buffer[0]);
-		send(clientSocket, buffer, strlen(buffer), 0);
+	// while(1){
+	// 	bzero(buffer, sizeof(buffer));
+	// 	printf("Client : \t");
+	// 	scanf("%s", &buffer[0]);
+	// 	send(clientSocket, buffer, strlen(buffer), 0);
+	//
+	// 	if(strcmp(buffer, ":exit") == 0){
+	// 		close(clientSocket);
+	// 		printf("[-]Disconnected from server.\n");
+	// 		exit(1);
+	// 	}
+	//
+	// 	/*testing*/
+	// 	if(strcmp(buffer, "checking") == 0){
+	// 		// ipc
+	// 		while(tmp->request == false);
+	// 		char powerErr[10];
+	// 		sprintf(powerErr, "%f", tmp->powErr);
+	// 		bzero(buffer, sizeof(buffer));
+	// 		strcpy(buffer, "powerErr : ");
+	// 		strcat(buffer, powerErr);
+	// 		tmp->freq = tmp->powErr + 10;
+	// 		if(sem_post(ack_sem) == -1)
+	// 			error("sem_post : buffer_count_sen");
+	// 		// end ipc
+	// 		send(clientSocket, buffer, strlen(buffer), 0);
+	// 	}
+	//
+	// 	if(recv(clientSocket, buffer, 1024, 0) <0){
+	// 		printf("[-]Error in receiving data.\n");
+	// 		exit(1);
+	// 	}
+	// 	else{
+	// 		printf("server: \t%s\n", buffer);
+	// 	}
+	// }
 
-		if(strcmp(buffer, ":exit") == 0){
-			close(clientSocket);
-			printf("[-]Disconnected from server.\n");
-			exit(1);
-		}
+	if((childpid=fork()) ==1){ //다중 프로세스를 위한 fork함수. 자식 프로세스 생성
+      perror("fork() error\n");
+      exit(0);
+  }
+  else if(childpid == 0) { //자식 프로세스 부분. stdin로 사용자가 입력한 문자를 buf에 저장하여 소켓에다
+      while(1){        //write 시스템콜을 이용해 server에게 문자를 보낸다. exit 입력시 종료
+          fgets(buffer,sizeof(buffer),stdin);
+          nbytes = strlen(buffer);
+          write(clientSocket,buffer,511);
+          if((strncmp,"exit",4) == 0){
+              puts("Good Bye.");
+              exit(0);
+          }
+      }
+      exit(0);
 
-		/*testing*/	
-		if(strcmp(buffer, "checking") == 0){
-			// ipc
-			while(tmp->request == false);
-			char powerErr[10];
-			sprintf(powerErr, "%f", tmp->powErr);
-			bzero(buffer, sizeof(buffer));
-			strcpy(buffer, "powerErr : ");
-			strcat(buffer, powerErr);
-			tmp->freq = tmp->powErr + 10;
-			if(sem_post(ack_sem) == -1)
-				error("sem_post : buffer_count_sen");
-			// end ipc
-			send(clientSocket, buffer, strlen(buffer), 0);
-		}
+  }
+  else if(childpid>0){ //부모프로세스. server가 보낸 문자열을 받아 출력한다.
+      while(1){    //역시 exit 를 받을시 종료
+          if(nbytes = read(clientSocket,buffer,511) <0){
+              perror("read() error\n");
+              exit(0);
+          }
+          printf("Server : %s",buffer);
+          if(strncmp(buffer,"exit",4) == 0)
+              exit(0);
 
-		if(recv(clientSocket, buffer, 1024, 0) <0){
-			printf("[-]Error in receiving data.\n");
-			exit(1);
-		}
-		else{
-			printf("server: \t%s\n", buffer);
-		}
-	}
+					if(strncmp(buffer, "checking", 8) == 0){
+								while(tmp->request == false);
+								char powerErr[10];
+								sprintf(powerErr, "%f", tmp->powErr);
+								bzero(buffer, sizeof(buffer));
+								strcpy(buffer, "powerErr : ");
+								strcat(buffer, powerErr);
+								tmp->freq = tmp->powErr + 10;
+								if(sem_post(ack_sem) == -1)
+									error("sem_post : buffer_count_sen");
+								// end ipc
+								send(clientSocket, buffer, strlen(buffer), 0);
+					}
+      }
 
-	
+
+  }
+
+
 	shmdt(tmp); // detach from shared memory
 	return 0;
 }
