@@ -17,7 +17,7 @@
 using namespace std;
 
 #define PORT 4444
-#define HOSTIP "169.234.61.6"
+#define HOSTIP "169.234.62.76"
 #define SEM_REQUEST_SIGNAL_NAME "/sem-req"
 #define SEM_ACK_SIGNAL_NAME "/sem-ack"
 
@@ -170,7 +170,7 @@ int main(int argc, char* argv[])
 					if(strncmp(buffer, "checking", 8) == 0){
 								while(tmp->request == false);
 								char powerErr[10];
-								sprintf(powerErr, "%f", tmp->powErr);
+								sprintf(powerErr, "%f\n", tmp->powErr);
 								bzero(buffer, sizeof(buffer));
 								strcpy(buffer, "powerErr : ");
 								strcat(buffer, powerErr);
@@ -178,13 +178,10 @@ int main(int argc, char* argv[])
 								if(sem_post(ack_sem) == -1)
 									error("sem_post : buffer_count_sen");
 								// end ipc
-								send(clientSocket, buffer, strlen(buffer), 0);
+								write(clientSocket, buffer, 511);
 					}
       }
-
-
   }
-
 
 	shmdt(tmp); // detach from shared memory
 	return 0;
