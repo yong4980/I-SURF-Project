@@ -36,11 +36,11 @@ int main(int argc, char* argv[])
 	// Initialize semaphore with 0
 	if((req_sem = sem_open(SEM_REQUEST_SIGNAL_NAME, 0, 0, 0)) == SEM_FAILED)
 		printf("sem_open failed : req_sem");
-	
+
 	// counting semaphore, indicating the number of strings to be printed. Initial value=0
 	if((ack_sem = sem_open(SEM_ACK_SIGNAL_NAME, 0, 0, 0)) == SEM_FAILED)
 		printf("sem_open failed : ack_sem");
-	
+
 	//scanf powErr
 	printf("Power Err -> ");
 	scanf("%lf", &powerErr);
@@ -56,6 +56,6 @@ int main(int argc, char* argv[])
 	client->request = false;
 
 	printf("\nresult\nfreq:%d\nEnd MARS\n", client->freq);
-	
+
 	return 0;
-} 
+}

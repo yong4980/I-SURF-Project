@@ -77,8 +77,8 @@ int main(){
     }
 
     if((sendpid=fork())== -1){close(sockfd);perror("fork() error");exit(0);}
-    else if(sendpid == 0){//send 자식프로세스이다.
-      while(1){
+    else if(sendpid == 0){//Part of child process.
+      while(1){          //Send messgae to client using write system call.
           fflush(stdin);
           fgets(checkStr, sizeof(checkStr), stdin);
           checkNum = atoi(checkStr);
@@ -92,11 +92,10 @@ int main(){
           write(client_socket[checkNum],buffer,511);
       }
     }
-    //newSocket을 지정할 방법을 찾아야 함!
 
     if((recvpid=fork())== -1){close(sockfd);perror("fork() error");exit(0);}
-    else if (recvpid == 0){ //recv 자식프로세스이다.
-      while(1){
+    else if (recvpid == 0){ //Part of parent process.
+      while(1){           //Print the message which Client send to Server. If insert exit, exit the process.
           if((nbytes = read(newSocket,buffer,511)) <0){
               perror("read() error\n");
               exit(0);

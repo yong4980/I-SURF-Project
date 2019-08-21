@@ -85,67 +85,12 @@ int main(int argc, char* argv[])
 	if((ack_sem = sem_open(SEM_ACK_SIGNAL_NAME, O_CREAT, 0600, 0)) == SEM_FAILED)
 		error ("sem_open");
 
-	//int count = atoi(argv[1]);
-
-	/*	//ipc sample
-	while(1) {
-		//wait for a request
-		while(tmp->request == false);
-
-		//powerErr = tmp->powErr; //set test_mars
-		//int frequencyVal = fuzzyDVFS(powerErr); //do not use fuzzy
-		//tmp->freq = frequncyVal; //set specific value
-
-		//Send result to daemon
-		if (sem_post (ack_sem) == -1)
-			error ("sem_post : buffer_count_sen");
-	}
-	*/
-
-	//interact server
-	// while(1){
-	// 	bzero(buffer, sizeof(buffer));
-	// 	printf("Client : \t");
-	// 	scanf("%s", &buffer[0]);
-	// 	send(clientSocket, buffer, strlen(buffer), 0);
-	//
-	// 	if(strcmp(buffer, ":exit") == 0){
-	// 		close(clientSocket);
-	// 		printf("[-]Disconnected from server.\n");
-	// 		exit(1);
-	// 	}
-	//
-	// 	/*testing*/
-	// 	if(strcmp(buffer, "checking") == 0){
-	// 		// ipc
-	// 		while(tmp->request == false);
-	// 		char powerErr[10];
-	// 		sprintf(powerErr, "%f", tmp->powErr);
-	// 		bzero(buffer, sizeof(buffer));
-	// 		strcpy(buffer, "powerErr : ");
-	// 		strcat(buffer, powerErr);
-	// 		tmp->freq = tmp->powErr + 10;
-	// 		if(sem_post(ack_sem) == -1)
-	// 			error("sem_post : buffer_count_sen");
-	// 		// end ipc
-	// 		send(clientSocket, buffer, strlen(buffer), 0);
-	// 	}
-	//
-	// 	if(recv(clientSocket, buffer, 1024, 0) <0){
-	// 		printf("[-]Error in receiving data.\n");
-	// 		exit(1);
-	// 	}
-	// 	else{
-	// 		printf("server: \t%s\n", buffer);
-	// 	}
-	// }
-
-	if((childpid=fork()) ==1){ //다중 프로세스를 위한 fork함수. 자식 프로세스 생성
+	if((childpid=fork()) ==1){ //Make a child process
       perror("fork() error\n");
       exit(0);
   }
-  else if(childpid == 0) { //자식 프로세스 부분. stdin로 사용자가 입력한 문자를 buf에 저장하여 소켓에다
-      while(1){        //write 시스템콜을 이용해 server에게 문자를 보낸다. exit 입력시 종료
+  else if(childpid == 0) { //Part of child process.
+      while(1){        //Send messgae to Server using write system call. If insert exit, exit the process.
           fgets(buffer,sizeof(buffer),stdin);
           nbytes = strlen(buffer);
           write(clientSocket,buffer,511);
@@ -157,8 +102,8 @@ int main(int argc, char* argv[])
       exit(0);
 
   }
-  else if(childpid>0){ //부모프로세스. server가 보낸 문자열을 받아 출력한다.
-      while(1){    //역시 exit 를 받을시 종료
+  else if(childpid>0){ //Part of parent process.
+      while(1){    //Print the message which Server send to Client. If insert exit, exit the process.
           if(nbytes = read(clientSocket,buffer,511) <0){
               perror("read() error\n");
               exit(0);
@@ -175,9 +120,10 @@ int main(int argc, char* argv[])
 								strcpy(buffer, "powerErr : ");
 								strcat(buffer, powerErr);
 								tmp->freq = tmp->powErr + 10;
-								if(sem_post(ack_sem) == -1)
+								if(sem_post(ack_sem) == -1) //end ipc
 									error("sem_post : buffer_count_sen");
-								// end ipc
+
+								//send to server
 								write(clientSocket, buffer, 511);
 					}
       }
