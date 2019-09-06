@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <fcntl.h>
 #include <semaphore.h>
+#include <signal.h>
 //network
 #include <unistd.h>
 #include <sys/socket.h>
@@ -17,7 +18,7 @@
 using namespace std;
 
 #define PORT 4444
-#define HOSTIP "169.234.62.76"
+#define HOSTIP "169.234.30.70"
 #define SEM_REQUEST_SIGNAL_NAME "/sem-req"
 #define SEM_ACK_SIGNAL_NAME "/sem-ack"
 
@@ -96,21 +97,28 @@ int main(int argc, char* argv[])
           write(clientSocket,buffer,511);
           if((strncmp,"exit",4) == 0){
               puts("Good Bye.");
+							kill( getppid(), SIGINT);
               exit(0);
           }
       }
       exit(0);
-
   }
   else if(childpid>0){ //Part of parent process.
       while(1){    //Print the message which Server send to Client. If insert exit, exit the process.
-          if(nbytes = read(clientSocket,buffer,511) <0){
+					bzero(buffer, sizeof(buffer));
+					if(nbytes = read(clientSocket,buffer,511) <0){
               perror("read() error\n");
               exit(0);
           }
           printf("Server : %s",buffer);
           if(strncmp(buffer,"exit",4) == 0)
               exit(0);
+
+					if(strncmp(buffer, "stop", 4) == 0){
+						write(clientSocket, buffer, 511);
+						kill(childpid, SIGINT);
+						exit(0);
+					}
 
 					if(strncmp(buffer, "checking", 8) == 0){
 								while(tmp->request == false);

@@ -25,7 +25,8 @@ int main(){
   socklen_t addr_size;
 
   char buffer[1024];
-  pid_t recvpid, sendpid;
+  pid_t sendpid;
+  pid_t recvpid[MAXCLIENT];
 
   int socketNum = 0, nbytes, checkNum;
   char checkStr[1024];
@@ -64,7 +65,7 @@ int main(){
   }
 
   while(1){
-    newSocket = accept(sockfd, (struct sockaddr*)&newAddr, &addr_size);
+    newSocket = accept(sockfd, (struct sockaddr*)&newAddr, &addr_size); //Part of parent process.
     if(newSocket < 0){
       exit(1);
     }
@@ -76,11 +77,23 @@ int main(){
       kill(sendpid, SIGINT);
     }
 
-    if((sendpid=fork())== -1){close(sockfd);perror("fork() error");exit(0);}
+    if((sendpid=fork())== -1){
+      close(sockfd);perror("fork() error");
+      exit(0);
+    }
     else if(sendpid == 0){//Part of child process.
       while(1){          //Send messgae to client using write system call.
           fflush(stdin);
           fgets(checkStr, sizeof(checkStr), stdin);
+
+          // if(strncmp(checkStr, "quit", 4) == 0){
+          //   for(int i=1; i<MAXCLIENT; i++){
+          //     write(client_socket[i], "stop\n", 511);
+          //     //kill(getppid(), SIGINT);
+          //     exit(0);
+          //   }
+          // }
+
           checkNum = atoi(checkStr);
 
           bzero(checkStr, sizeof(checkStr));
@@ -91,20 +104,30 @@ int main(){
           nbytes = strlen(buffer);
           write(client_socket[checkNum],buffer,511);
       }
+      exit(0);
     }
 
-    if((recvpid=fork())== -1){close(sockfd);perror("fork() error");exit(0);}
-    else if (recvpid == 0){ //Part of parent process.
+    if((recvpid[socketNum]=fork())== -1){
+      close(sockfd);perror("fork() error");
+      exit(0);
+    }
+    else if (recvpid[socketNum] == 0){ //Part of child process.
       while(1){           //Print the message which Client send to Server. If insert exit, exit the process.
           if((nbytes = read(newSocket,buffer,511)) <0){
               perror("read() error\n");
               exit(0);
           }
           printf("Socket Num(%d) : %s", socketNum, buffer);
-          if(strncmp(buffer,"exit",4) == 0)
-              exit(0);
+
+          if(strncmp(buffer,"exit",4) == 0){
+            write(newSocket, buffer, 511);
+            exit(0);
+          }
+          else if(strncmp(buffer, "stop", 4) == 0){
+            exit(0);
+          }
       }
-        exit(0);
+      exit(0);
     }
   }
   close(newSocket);
