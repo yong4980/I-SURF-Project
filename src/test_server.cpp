@@ -8,7 +8,7 @@
 #include <arpa/inet.h>
 #include <signal.h>
 
-#define PORT 4444
+#define PORT 5555
 #define MAXCLIENT 30
 
 int main(){
@@ -71,6 +71,7 @@ int main(){
     }
     printf("[+]Connection accepted from %s:%d\n", inet_ntoa(newAddr.sin_addr), ntohs(newAddr.sin_port));
     socketNum += 1;
+    socketNum %= 30;
     client_socket[socketNum] = newSocket;
 
     if(socketNum != 1){
@@ -78,37 +79,40 @@ int main(){
     }
 
     if((sendpid=fork())== -1){
-      close(sockfd);perror("fork() error");
+      close(sockfd);
+      perror("fork() error");
       exit(0);
     }
     else if(sendpid == 0){//Part of child process.
       while(1){          //Send messgae to client using write system call.
           fflush(stdin);
+          bzero(checkStr, sizeof(checkStr));
           fgets(checkStr, sizeof(checkStr), stdin);
 
           // if(strncmp(checkStr, "quit", 4) == 0){
-          //   for(int i=1; i<MAXCLIENT; i++){
-          //     write(client_socket[i], "stop\n", 511);
-          //     //kill(getppid(), SIGINT);
-          //     exit(0);
+          //   for(int i=0; i<MAXCLIENT; i++){
+          //     write(client_socket[i], "stop\n", 511); //Need checking only connected client
           //   }
+          //   kill(getppid(), SIGINT);
+          //   close(newSocket);
+          //   exit(0);
           // }
+          //else{
+            checkNum = atoi(checkStr);
 
-          checkNum = atoi(checkStr);
-
-          bzero(checkStr, sizeof(checkStr));
-
-          printf("send msg to %d socket : ", checkNum);
-          fflush(stdin);
-          fgets(buffer,sizeof(buffer),stdin);
-          nbytes = strlen(buffer);
-          write(client_socket[checkNum],buffer,511);
+            printf("send msg to %d socket : ", checkNum);
+            fflush(stdin);
+            fgets(buffer,sizeof(buffer),stdin);
+            nbytes = strlen(buffer);
+            write(client_socket[checkNum],buffer,511);
+          //}
       }
       exit(0);
     }
 
     if((recvpid[socketNum]=fork())== -1){
-      close(sockfd);perror("fork() error");
+      close(sockfd);
+      perror("fork() error");
       exit(0);
     }
     else if (recvpid[socketNum] == 0){ //Part of child process.

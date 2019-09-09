@@ -17,8 +17,8 @@
 
 using namespace std;
 
-#define PORT 4444
-#define HOSTIP "169.234.30.70"
+#define PORT 5555
+#define HOSTIP "169.234.17.238"
 #define SEM_REQUEST_SIGNAL_NAME "/sem-req"
 #define SEM_ACK_SIGNAL_NAME "/sem-ack"
 
