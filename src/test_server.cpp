@@ -12,28 +12,20 @@
 #define MAXCLIENT 30
 
 int main(){
-
-  //testing
-  int boardNum = 0;
-
-  int sockfd, ret;
+  int sockfd, ret; //sockfd is a listening socket
   struct sockaddr_in serverAddr;
 
-  int newSocket;
+  int newSocket; //client's socket
   struct sockaddr_in newAddr;
 
   socklen_t addr_size;
-
-  char buffer[1024];
   pid_t sendpid;
   pid_t recvpid[MAXCLIENT];
 
   int socketNum = 0, nbytes, checkNum;
+  char buffer[1024];
   char checkStr[1024];
   int client_socket[MAXCLIENT] = {0, };
-
-  //set of socket descriptors
-  fd_set readfds;
 
   bzero(buffer, sizeof(buffer));
   bzero(checkStr, sizeof(checkStr));
@@ -89,23 +81,13 @@ int main(){
           bzero(checkStr, sizeof(checkStr));
           fgets(checkStr, sizeof(checkStr), stdin);
 
-          // if(strncmp(checkStr, "quit", 4) == 0){
-          //   for(int i=0; i<MAXCLIENT; i++){
-          //     write(client_socket[i], "stop\n", 511); //Need checking only connected client
-          //   }
-          //   kill(getppid(), SIGINT);
-          //   close(newSocket);
-          //   exit(0);
-          // }
-          //else{
-            checkNum = atoi(checkStr);
+          checkNum = atoi(checkStr);
 
-            printf("send msg to %d socket : ", checkNum);
-            fflush(stdin);
-            fgets(buffer,sizeof(buffer),stdin);
-            nbytes = strlen(buffer);
-            write(client_socket[checkNum],buffer,511);
-          //}
+          printf("send msg to %d socket : ", checkNum);
+          fflush(stdin);
+          fgets(buffer,sizeof(buffer),stdin);
+          nbytes = strlen(buffer);
+          write(client_socket[checkNum],buffer,511);
       }
       exit(0);
     }
