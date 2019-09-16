@@ -15,11 +15,11 @@
 #include <cstdlib>
 #include <fcntl.h>
 #include <semaphore.h>
-#include <signal.h>
 
-#define PORT 4444
-#define HOSTIP "169.234.17.238"
+#define PORT 9999
+#define HOSTIP "169.234.54.68"
 #define MAXCLIENT 30
+#define MAXSOCKET MAXCLIENT+1
 
 class Tcp{
 private:
@@ -27,24 +27,31 @@ private:
   struct sockaddr_in serverAddr; //Server Info
   struct sockaddr_in newClientAddr; //New Client Info
   socklen_t addr_size;
-  char* checkStr;
   char* buffer;
-  int listeningSocket, clientSocket, check, nbytes;
+  int clientSocket, check;
   int* connectedSocket;
 
   key_t key;
   int shmid;
 
-
 public:
   Tcp();
   ~Tcp();
-  int BuildServerTCP(); //done
-  int BuildClientTCP(); //done
-  int ListeningClient(); //done
-  char* ReadMsg(int socket); //done
-  void WriteMsg(int socket, char* msg); //done
-  int FindEmptySocket(); //done
+  int BuildServerTCP();
+  int BuildClientTCP();
+  void ListeningClient(int newSocketNum);
+  char* ReadMsg(int socketNum);
+  char* ReadMsg(int socket, int client);
+  void WriteMsg(int socketNum, char* msg);
+  void WriteMsg(int socket, char* msg, int client);
+  void WriteMsg(char* socketNumStr, char* msg); //Function overload
+  int FindEmptySocket();
+  void CheckConnectedSocket();
+  int GetMaxClientNum();
+  void QuitTCP();
+  void QuitAll();
+  void close(int socketNum);
+  void DisconnectSocket(int socketNum);
 
   void setBuffer(char* buffer);
   char* getBuffer();
