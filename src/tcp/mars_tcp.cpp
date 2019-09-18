@@ -1,7 +1,9 @@
 #include "mars_tcp.h"
 Tcp::Tcp(){
   buffer = new char[1024];
+  hostIP = new char[20];
   bzero(buffer, sizeof(buffer));
+  bzero(hostIP, sizeof(hostIP));
   connectedSocket = new int[MAXSOCKET];
   for(int i=0; i<MAXSOCKET; i++){
     connectedSocket[i] = 0;
@@ -13,7 +15,7 @@ Tcp::~Tcp(){
 
 int Tcp::BuildServerTCP(){
   //shared memory
-  key = ftok("shmList", 100); //Ftok to generate unique key
+  key = ftok("shmArray", 123); //Ftok to generate unique key
   shmid = shmget(key, 1024, 0666|IPC_CREAT); //Shmget(make shm) returns an identifier in shmid
   connectedSocket = (int*) shmat(shmid, (void*)0, 0); //Shmat to attach to shared memory
 
@@ -50,7 +52,8 @@ int Tcp::BuildServerTCP(){
   return 0;
 }
 
-int Tcp::BuildClientTCP(){
+int Tcp::BuildClientTCP(char serverIP[]){
+  strcpy(hostIP, serverIP);
   clientSocket = socket(AF_INET, SOCK_STREAM, 0);
   //Check creating socket
   if(clientSocket < 0){
@@ -63,7 +66,7 @@ int Tcp::BuildClientTCP(){
 	memset(&serverAddr, '\0', sizeof(serverAddr));
 	serverAddr.sin_family = AF_INET;
 	serverAddr.sin_port = htons(PORT);
-	serverAddr.sin_addr.s_addr = inet_addr(HOSTIP);
+	serverAddr.sin_addr.s_addr = inet_addr(hostIP);
 
   //Connect
   check = connect(clientSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
@@ -154,6 +157,7 @@ void Tcp::QuitTCP(){
   shmdt(connectedSocket);
   shmctl(shmid,IPC_RMID,NULL);
   delete[] buffer;
+  delete[] hostIP;
   printf("Complete detach shared memory\n");
 }
 

@@ -1,5 +1,4 @@
-#include "mars_tcp.h"
-#include <signal.h>
+#include "./tcp/mars_tcp.h"
 void ServerFunction(int socketNum, char* buffer, char* checkStr, Tcp* serverTcp);
 void GetString(char* str);
 void EndProcess(char* buffer, char* checkStr, Tcp* serverTcp);
